@@ -19,6 +19,8 @@ public:
   void progress_each_day();
   std::string person_status();
   void infect(Disease disease);
+  State get_state();
+  int get_days_to_recover();
 
 private:
   State state = State::SUSCEPTIBLE;
@@ -28,6 +30,8 @@ private:
 class Disease {
 public:
   Disease(int dur, float trans_prob);
+  int get_duration();
+  float get_transfer_probability();
 
 private:
   int sick_duration;
