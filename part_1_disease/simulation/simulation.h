@@ -4,9 +4,35 @@
 
 #include <string>
 
-class Person {};
+enum class State {
+  SUSCEPTIBLE,
+  INFECTED,
+  VACCINATED,
+};
 
-class Disease {};
+class Disease;
+
+class Person {
+public:
+  std::string get_infected();
+  std::string get_vaccinated();
+  void progress_each_day();
+  std::string person_status();
+  void infect(Disease disease);
+
+private:
+  State state = State::SUSCEPTIBLE;
+  int days_to_recover;
+};
+
+class Disease {
+public:
+  Disease(int dur, float trans_prob);
+
+private:
+  int sick_duration;
+  float transfer_probability;
+};
 
 class Population {};
 
