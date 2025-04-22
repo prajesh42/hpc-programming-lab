@@ -12,7 +12,11 @@ std::string Person::get_vaccinated() {
 }
 
 void Person::progress_each_day() {
-    days_to_recover--;
+    if(days_to_recover == 1) {
+        get_vaccinated();
+    }else if(state == State::INFECTED){
+        days_to_recover--;
+    }
 }
 
 std::string Person::person_status() {
@@ -24,7 +28,13 @@ std::string Person::person_status() {
     }
 }
 
-void Person::infect(Disease d) { }
+void Person::infect(Disease d) {
+    float ran_num = Utility::gen_random_num();
+    if (ran_num <= d.get_transfer_probability()) {
+        get_infected();
+        (days_to_recover) = d.get_duration();
+    }
+}
 
 State Person::get_state() {
     return state;
