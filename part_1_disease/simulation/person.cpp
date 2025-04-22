@@ -28,7 +28,7 @@ std::string Person::person_status() {
     }
 }
 
-void Person::infect(Disease d) {
+void Person::infect(Disease& d) {
     float ran_num = Utility::gen_random_num();
     if (ran_num <= d.get_transfer_probability()) {
         get_infected();

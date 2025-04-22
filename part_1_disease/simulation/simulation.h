@@ -18,7 +18,7 @@ public:
   std::string get_vaccinated();
   void progress_each_day();
   std::string person_status();
-  void infect(Disease disease);
+  void infect(Disease& disease);
   State get_state();
   int get_days_to_recover();
 
