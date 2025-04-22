@@ -9,11 +9,13 @@ add_executable(hpc_disease_simulation
         simulation/main.cpp
         simulation/simulation.cpp
         simulation/person.cpp
-        simulation/disease.cpp)
+        simulation/disease.cpp
+        simulation/utility.cpp)
 
 
 add_executable(test
         simulation/test.cpp
         simulation/simulation.cpp
         simulation/person.cpp
-        simulation/disease.cpp)
+        simulation/disease.cpp
+        simulation/utility.cpp)

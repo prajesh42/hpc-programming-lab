@@ -48,3 +48,10 @@ public:
 private:
   std::string input_file;
 };
+
+class Utility {
+public:
+  static float gen_random_num();
+
+private:
+};
