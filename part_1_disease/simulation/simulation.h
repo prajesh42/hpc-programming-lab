@@ -24,7 +24,7 @@ public:
 
 private:
   State state = State::SUSCEPTIBLE;
-  int days_to_recover;
+  int days_to_recover = 0;
 };
 
 class Disease {
