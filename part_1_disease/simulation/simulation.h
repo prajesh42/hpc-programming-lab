@@ -10,7 +10,17 @@ enum class State {
   VACCINATED,
 };
 
-class Disease;
+class Disease {
+  public:
+    Disease();
+    Disease(int dur, float trans_prob);
+    int& duration();
+    float& transfer_probability();
+  
+  private:
+    int sick_duration;
+    float trans_probability;
+  };
 
 class Person {
 public:
@@ -21,21 +31,14 @@ public:
   void infect(Disease& disease);
   State get_state();
   int get_days_to_recover();
+  bool is_recovered();
+  Disease& disease();
+  void touch(Person& person);
 
 private:
   State state = State::SUSCEPTIBLE;
   int days_to_recover = 0;
-};
-
-class Disease {
-public:
-  Disease(int dur, float trans_prob);
-  int get_duration();
-  float get_transfer_probability();
-
-private:
-  int sick_duration;
-  float transfer_probability;
+  Disease dis;
 };
 
 class Population {};

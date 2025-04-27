@@ -8,6 +8,7 @@ std::string Person::get_infected() {
 
 std::string Person::get_vaccinated() {
     (state) = State::VACCINATED;
+    (days_to_recover) = 0;
     return person_status();
 }
 
@@ -21,7 +22,7 @@ void Person::progress_each_day() {
 
 std::string Person::person_status() {
     switch(state) {
-        case State::INFECTED:       return "sick";
+        case State::INFECTED:       return "sick ( " + std::to_string(days_to_recover) + " days to go )";
         case State::VACCINATED:     return "recovered";
         default: return "susceptible";
     }
@@ -30,9 +31,10 @@ std::string Person::person_status() {
 void Person::infect(Disease& d) {
     if(state == State::SUSCEPTIBLE) {
         float ran_num = Utility::gen_random_num();
-        if (ran_num <= d.get_transfer_probability()) {
+        if (ran_num <= d.transfer_probability()) {
             get_infected();
-            (days_to_recover) = d.get_duration();
+            (dis) = d;
+            (days_to_recover) = d.duration();
         }
     }
 }
@@ -43,4 +45,20 @@ State Person::get_state() {
 
 int Person::get_days_to_recover() {
     return days_to_recover;
+}
+
+bool Person::is_recovered() { 
+    return state == State::VACCINATED; 
+}
+
+Disease& Person::disease() {
+  return dis;
+}
+
+void Person::touch(Person& person) {
+    if(person.get_state() == State::INFECTED && (state) == State::SUSCEPTIBLE) {
+        infect(person.disease());
+    }else if(person.get_state() == State::SUSCEPTIBLE && (state) == State::INFECTED) {
+        person.infect(disease());
+    }
 }
