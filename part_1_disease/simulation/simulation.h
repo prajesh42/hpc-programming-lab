@@ -3,6 +3,7 @@
 #endif // HPC_DISEASE_SIMULATION_H_
 
 #include <string>
+#include <vector>
 
 enum class State {
   SUSCEPTIBLE,
@@ -41,7 +42,17 @@ private:
   Disease dis;
 };
 
-class Population {};
+class Population {
+  public:
+    void random_infection();
+    void random_vaccination();
+    int count_infected();
+    int count_vaccinated();
+    void one_more_day();
+
+  private:
+    std::vector<Person> people;
+};
 
 class Simulation {
 public:
