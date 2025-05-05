@@ -44,8 +44,9 @@ private:
 
 class Population {
   public:
-    void random_infection();
-    void random_vaccination();
+    Population(int size);
+    void random_infection(int infected, Disease& disease);
+    void random_vaccination(int vaccinated);
     int count_infected();
     int count_vaccinated();
     void one_more_day();
@@ -66,6 +67,7 @@ private:
 class Utility {
 public:
   static float gen_random_num();
+  static std::vector<int> randomized_indices(int elements_size);
 
 private:
 };

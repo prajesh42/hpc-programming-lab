@@ -12,3 +12,19 @@ float Utility::gen_random_num() {
 
     return dis(gen);
 }
+
+/**
+ * @brief Randomizes indices of the given elements size
+ * @return vector<int>
+ */
+ std::vector<int> Utility::randomized_indices(int elements_size) {
+    std::vector<int> indices(elements_size);
+    std::iota(indices.begin(), indices.end(), 0);
+
+    for(int index = elements_size - 1; index > 0; index--) {
+        int swap_index = gen_random_num() * (index + 1);
+        std::swap(indices[index], indices[swap_index]);
+    }
+
+    return indices;
+}
