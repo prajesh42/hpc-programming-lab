@@ -123,3 +123,23 @@ TEST_CASE("Test person class") {
         DOCTEST_CHECK(chance <= 0.8);
     }
 }
+
+TEST_CASE("Test Disease class") {
+    Disease dis;
+    dis.duration() = 20;
+    dis.transfer_probability() = 0.5f;
+
+    SUBCASE("duration_test()") {
+        DOCTEST_CHECK_EQ(20, dis.duration());
+    }
+
+    SUBCASE("transfer_probability_test()") {
+        DOCTEST_CHECK_EQ(0.5f, dis.transfer_probability());
+    }
+
+    SUBCASE("parameterized_constructor_test()") {
+        Disease disease = Disease(10, 0.7f);
+        DOCTEST_CHECK_EQ(10, disease.duration());
+        DOCTEST_CHECK_EQ(0.7f, disease.transfer_probability());
+    }
+}
