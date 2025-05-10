@@ -31,5 +31,7 @@ int Population::count_vaccinated() {
 }
 
 void Population::one_more_day() {
-
+    for(auto& person : people) {
+        person.progress_each_day();
+    }
 }

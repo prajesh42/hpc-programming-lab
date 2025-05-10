@@ -184,4 +184,13 @@ TEST_CASE("Test Population class") {
         pop.random_vaccination(1000);
         DOCTEST_CHECK(1000 == pop.count_vaccinated());
     }
+
+    SUBCASE("one_more_day_test()") {
+        Population pop(1000);
+        pop.random_infection(1, disease);
+        for(int days = 0; days < 10; ++days) {
+            pop.one_more_day();
+        }
+        DOCTEST_CHECK(0 == pop.count_infected());
+    }
 }
