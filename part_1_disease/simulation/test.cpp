@@ -143,3 +143,45 @@ TEST_CASE("Test Disease class") {
         DOCTEST_CHECK_EQ(0.7f, disease.transfer_probability());
     }
 }
+
+TEST_CASE("Test Population class") {
+    Disease disease(10, 1.0f); 
+
+    SUBCASE("constructor_test()") {
+        Population pop(100);
+        DOCTEST_CHECK_EQ(0, pop.count_infected());
+        DOCTEST_CHECK_EQ(0, pop.count_vaccinated());
+    }
+
+    SUBCASE("random_infection_test()") {
+        Population pop(50);
+        pop.random_infection(10, disease);
+        DOCTEST_CHECK_EQ(10, pop.count_infected());
+    }
+
+    SUBCASE("random_infection_limit_test()") {
+        Population pop(5);
+        pop.random_infection(10, disease); 
+        DOCTEST_CHECK_EQ(5, pop.count_infected());
+    }
+
+    SUBCASE("random_vaccination_test()") {
+        Population pop(50);
+        pop.random_vaccination(20);
+        DOCTEST_CHECK_EQ(20, pop.count_vaccinated());
+    }
+
+    SUBCASE("random_vaccination_limit_test()") {
+        Population pop(8);
+        pop.random_vaccination(20);
+        DOCTEST_CHECK_EQ(8, pop.count_vaccinated());
+    }
+
+    SUBCASE("infection_with_complete_vaccination_test()") {
+        Population pop(1000);
+        pop.random_infection(30, disease);
+        DOCTEST_CHECK(30 == pop.count_infected());
+        pop.random_vaccination(1000);
+        DOCTEST_CHECK(1000 == pop.count_vaccinated());
+    }
+}
