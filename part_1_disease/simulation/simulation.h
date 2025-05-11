@@ -47,9 +47,11 @@ class Population {
     Population(int size);
     void random_infection(int infected, Disease& disease);
     void random_vaccination(int vaccinated);
+    int count_healthy();
     int count_infected();
     int count_vaccinated();
     void one_more_day();
+    std::string routine();
 
   private:
     std::vector<Person> people;

@@ -193,4 +193,28 @@ TEST_CASE("Test Population class") {
         }
         DOCTEST_CHECK(0 == pop.count_infected());
     }
+
+    SUBCASE("one_more_day_infected_test()") {
+        Population pop(1000);
+        pop.random_infection(5, disease);
+        for(int days = 0; days < 10 ; ++days) {
+            int infected = pop.count_infected();
+            int healthy = pop.count_healthy();
+            DOCTEST_CHECK(5 == infected);
+            DOCTEST_CHECK(1000 == (healthy + infected));
+            pop.one_more_day();
+        }
+        DOCTEST_CHECK(0 == pop.count_infected());
+    }
+
+    SUBCASE("routine_test()") {
+        Population pop(1);
+        Disease dis(1, 1.0f);
+        pop.one_more_day();
+        DOCTEST_CHECK(" ? " == pop.routine());
+        pop.random_infection(1, dis);
+        DOCTEST_CHECK(" + " == pop.routine());
+        pop.one_more_day();
+        DOCTEST_CHECK(" - " == pop.routine());
+    }
 }

@@ -22,6 +22,10 @@ void Population::random_vaccination(int vaccinated) {
     }
 }
 
+int Population::count_healthy() { 
+    return std::count_if(people.begin(), people.end(), [](Person& per){return per.get_state() == State::SUSCEPTIBLE;});
+}
+
 int Population::count_infected() { 
     return std::count_if(people.begin(), people.end(), [](Person& per){return per.get_state() == State::INFECTED;});
 }
@@ -34,4 +38,22 @@ void Population::one_more_day() {
     for(auto& person : people) {
         person.progress_each_day();
     }
+}
+
+std::string Population::routine() {
+    std::string status;
+    for(auto& person : people) {
+        switch (person.get_state()) {
+            case State::INFECTED: 
+                status += " + ";
+                break;
+            case State::VACCINATED: 
+                status += " - ";
+                break;
+            default: 
+                status += " ? ";
+                break;
+        }
+    }
+    return status;
 }
