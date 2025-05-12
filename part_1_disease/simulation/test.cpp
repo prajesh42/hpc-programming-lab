@@ -2,7 +2,14 @@
 #include "../include/doctest.h"
 #include "simulation.h"
 
-TEST_CASE("Test simulation class") { Simulation sim = Simulation(); }
+TEST_CASE("Test simulation class") { 
+    Simulation sim = Simulation();
+    
+    SUBCASE("run_test()") {
+        int steps = sim.run(20, "Corona", 5, 1.0f);
+        DOCTEST_CHECK_EQ(steps, 25);
+    }
+}
 
 TEST_CASE("Test person class") { 
     Person per;
@@ -142,6 +149,11 @@ TEST_CASE("Test Disease class") {
         DOCTEST_CHECK_EQ(10, disease.duration());
         DOCTEST_CHECK_EQ(0.7f, disease.transfer_probability());
     }
+
+    SUBCASE("disease_name_test()") {
+        dis.disease_name() = "Corona";
+        DOCTEST_CHECK_EQ("Corona", dis.disease_name());
+    }
 }
 
 TEST_CASE("Test Population class") {
@@ -216,5 +228,49 @@ TEST_CASE("Test Population class") {
         DOCTEST_CHECK(" + " == pop.routine());
         pop.one_more_day();
         DOCTEST_CHECK(" - " == pop.routine());
+    }
+
+    SUBCASE("infect_neighbors_next_day_middle_index_test()") {
+        Population pop(20);
+        Disease dis(5, 1.0f);
+        pop.get_people()[10].infect(dis);
+        pop.one_more_day();
+        pop.infect_neighbors();
+        DOCTEST_CHECK(3 == pop.count_infected());
+    }
+
+    SUBCASE("infect_neighbors_next_day_initial_index_test()") {
+        Population pop(20);
+        Disease dis(5, 1.0f);
+        pop.get_people()[0].infect(dis);
+        pop.one_more_day();
+        pop.infect_neighbors();
+        DOCTEST_CHECK(2 == pop.count_infected());
+    }
+
+    SUBCASE("infect_neighbors_next_day_last_index_test()") {
+        Population pop(20);
+        Disease dis(5, 1.0f);
+        pop.get_people()[19].infect(dis);
+        pop.one_more_day();
+        pop.infect_neighbors();
+        DOCTEST_CHECK(2 == pop.count_infected());
+    }
+
+    SUBCASE("people_infected_days_test()") {
+        Population pop(20);
+        Disease dis(5, 1.0f);
+        pop.get_people()[0].infect(dis);
+        int days = 0;
+        for(int step = 1; ; ++step) {
+            if(pop.count_infected() == 0) {
+                days = step;
+                break;
+            }
+            pop.one_more_day();
+            pop.infect_neighbors();
+        }
+        
+        DOCTEST_CHECK(25 == days);
     }
 }

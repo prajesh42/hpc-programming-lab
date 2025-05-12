@@ -8,9 +8,12 @@ Population::Population(int size) {
 
 void Population::random_infection(int infected, Disease& disease) {
     std::vector<int> ran_indices = Utility::randomized_indices(people.size());
-    
-    for(int ind = 0; ind < infected && ind < people.size(); ind++) {
-        people[ran_indices[ind]].infect(disease);
+    int count = 0;
+    for(int ind = 0; count < infected && ind < people.size(); ind++) {
+        if(people[ran_indices[ind]].get_state() == State::SUSCEPTIBLE) {
+            people[ran_indices[ind]].infect(disease);
+            count++;
+        }
     }
 }
 
@@ -56,4 +59,25 @@ std::string Population::routine() {
         }
     }
     return status;
+}
+
+void Population::infect_neighbors() {
+    bool left_touched = false;
+    bool right_touched = false;
+    for(int index = 0; index < people.size(); ++index) {
+        if(people[index].get_state() == State::INFECTED) {
+            if(!left_touched && index > 0 && people[index - 1].get_state() == State::SUSCEPTIBLE) {
+                people[index].touch(people[index - 1]);
+                left_touched = true;
+            }
+            if(!right_touched && index + 1 < people.size() && people[index + 1].get_state() == State::SUSCEPTIBLE) {
+                people[index].touch(people[index + 1]); 
+                right_touched = true;
+            }
+        }
+    }
+}
+
+std::vector<Person>& Population::get_people() {
+    return people;
 }

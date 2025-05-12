@@ -17,10 +17,12 @@ class Disease {
     Disease(int dur, float trans_prob);
     int& duration();
     float& transfer_probability();
+    std::string& disease_name();
   
   private:
     int sick_duration;
     float trans_probability;
+    std::string dises_name;
   };
 
 class Person {
@@ -52,6 +54,8 @@ class Population {
     int count_vaccinated();
     void one_more_day();
     std::string routine();
+    void infect_neighbors();
+    std::vector<Person>& get_people();
 
   private:
     std::vector<Person> people;
@@ -61,6 +65,7 @@ class Simulation {
 public:
   Simulation(std::string in_file = "disease_in.ini");
   void start();
+  int run(int num_pop, std::string disease_name, int duration, float trans);
 
 private:
   std::string input_file;

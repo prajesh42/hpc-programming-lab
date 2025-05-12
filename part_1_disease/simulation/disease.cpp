@@ -15,3 +15,7 @@ int& Disease::duration() {
 float& Disease::transfer_probability() { 
     return trans_probability; 
 }
+
+std::string& Disease::disease_name() {
+    return dises_name;
+}
