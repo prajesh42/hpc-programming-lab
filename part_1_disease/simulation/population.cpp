@@ -10,8 +10,10 @@ void Population::random_infection(int infected, Disease& disease) {
     std::vector<int> ran_indices = Utility::randomized_indices(people.size());
     int count = 0;
     for(int ind = 0; count < infected && ind < people.size(); ind++) {
-        if(people[ran_indices[ind]].get_state() == State::SUSCEPTIBLE) {
-            people[ran_indices[ind]].infect(disease);
+        Person& person = people[ran_indices[ind]];
+        person.infect(disease);
+        dis = disease;
+        if(person.get_state() == State::INFECTED) {
             count++;
         }
     }
@@ -19,9 +21,13 @@ void Population::random_infection(int infected, Disease& disease) {
 
 void Population::random_vaccination(int vaccinated) {
     std::vector<int> ran_indices = Utility::randomized_indices(people.size());
-
-    for(int ind = 0; ind < vaccinated && ind < people.size(); ind++) {
-        people[ran_indices[ind]].get_vaccinated();
+    int count = 0;
+    for(int ind = 0; count < vaccinated && ind < people.size(); ind++) {
+        Person& person = people[ran_indices[ind]];
+        person.get_vaccinated();
+        if(person.get_state() == State::VACCINATED) {
+            count++;
+        }
     }
 }
 
@@ -75,9 +81,17 @@ void Population::infect_neighbors() {
                 right_touched = true;
             }
         }
+        if(left_touched && right_touched) { break;}
     }
 }
 
 std::vector<Person>& Population::get_people() {
     return people;
+}
+
+void Population::random_interactions(int people_size) {
+    int infected = count_infected();
+    while(infected-->0) {
+        random_infection(people_size, dis);
+    }
 }

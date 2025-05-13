@@ -4,11 +4,6 @@
 
 TEST_CASE("Test simulation class") { 
     Simulation sim = Simulation();
-    
-    SUBCASE("run_test()") {
-        int steps = sim.run(20, "Corona", 5, 1.0f);
-        DOCTEST_CHECK_EQ(steps, 25);
-    }
 }
 
 TEST_CASE("Test person class") { 
@@ -272,5 +267,13 @@ TEST_CASE("Test Population class") {
         }
         
         DOCTEST_CHECK(25 == days);
+    }
+
+    SUBCASE("random_interactions_test()") {
+        Population pop(20);
+        Disease dis(5, 1.0f);
+        pop.random_infection(1, dis);
+        pop.random_interactions(6);
+        DOCTEST_CHECK(7 == pop.count_infected());
     }
 }

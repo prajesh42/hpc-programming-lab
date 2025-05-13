@@ -12,29 +12,40 @@ void Simulation::start() { std::cout << "Starting simulation..." << std::endl;
 
     //[disease]
     std::string disease_name = "Corona";
-    int disease_duration = 2;
+    int disease_duration = 5;
     int transmissibility = 1.0f;
 
     //[population]
-    int population_size = 20;
-    float vaccination_rate = 0.9;
+    int population_size = 200;
+    float vaccination_rate = 0.1;
     bool patient_0 = true;
 
-    int steps = run(population_size, disease_name, disease_duration, transmissibility);
-    std::cout << "total_steps , " << steps << std::endl;
+    run(simulation_runs, population_size, disease_name, disease_duration, transmissibility, vaccination_rate);
 }
 
-int Simulation::run(int num_pop, std::string disease_name, int duration, float trans) {
-    Population populace(num_pop);
-    Disease flu(duration, trans);
-    flu.disease_name() = disease_name;
-    populace.get_people()[0].infect(flu);
-    for (int step = 1; ; ++step) {
-        if (populace.count_infected() == 0) {
-            return step;
+void Simulation::run(int sim_runs, int num_pop, std::string disease_name, int duration, float trans, float vac_rate) {
+    while(sim_runs-->0) {
+        Population populace(num_pop);
+        Disease flu(duration, trans);
+        flu.disease_name() = disease_name;
+        populace.random_infection(1, flu);
+        int vaccinated = vac_rate * num_pop;
+        int total_vaccinated = 0;
+        for (int step = 1; ; ++step) {
+            int infected_count = populace.count_infected();
+            if (infected_count == 0) {
+                std::cout << "total_steps , " << step << std::endl;
+                break;
+            }
+            populace.one_more_day();
+            populace.infect_neighbors();
+            populace.random_interactions(6);
+            populace.random_vaccination(vaccinated);
+
+            total_vaccinated += vaccinated;
         }
-        populace.one_more_day();
-        populace.infect_neighbors();
+        std::cout << "susceptible_persons, " << populace.count_healthy() << std::endl;
+        std::cout << "recovered_persons, " << populace.count_vaccinated() << std::endl;
+        std::cout << "vaccinated_persons, " << total_vaccinated << std::endl;
     }
-    return 0;
 }

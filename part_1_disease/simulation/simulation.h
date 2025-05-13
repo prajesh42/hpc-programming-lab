@@ -56,16 +56,18 @@ class Population {
     std::string routine();
     void infect_neighbors();
     std::vector<Person>& get_people();
+    void random_interactions(int people_size);
 
   private:
     std::vector<Person> people;
+    Disease dis;
 };
 
 class Simulation {
 public:
   Simulation(std::string in_file = "disease_in.ini");
   void start();
-  int run(int num_pop, std::string disease_name, int duration, float trans);
+  void run(int sim_runs, int num_pop, std::string disease_name, int duration, float trans, float vac_rate);
 
 private:
   std::string input_file;
