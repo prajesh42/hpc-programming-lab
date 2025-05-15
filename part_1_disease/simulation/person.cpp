@@ -24,12 +24,12 @@ std::string Person::person_status() {
     switch(state) {
         case State::INFECTED:       return "sick ( " + std::to_string(days_to_recover) + " days to go )";
         case State::VACCINATED:     return "recovered";
-        default: return "susceptible";
+        default: return "susceptiple";
     }
 }
 
 void Person::infect(Disease& d) {
-    if(state == State::SUSCEPTIBLE) {
+    if(state == State::SUSCEPTIPLE) {
         float ran_num = Utility::gen_random_num();
         if (ran_num <= d.transfer_probability()) {
             direct_infection(d);
@@ -54,9 +54,9 @@ Disease& Person::disease() {
 }
 
 void Person::touch(Person& person) {
-    if(person.get_state() == State::INFECTED && (state) == State::SUSCEPTIBLE) {
+    if(person.get_state() == State::INFECTED && (state) == State::SUSCEPTIPLE) {
         infect(person.disease());
-    }else if(person.get_state() == State::SUSCEPTIBLE && (state) == State::INFECTED) {
+    }else if(person.get_state() == State::SUSCEPTIPLE && (state) == State::INFECTED) {
         person.infect(disease());
     }
 }

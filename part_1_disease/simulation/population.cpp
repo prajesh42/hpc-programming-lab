@@ -22,14 +22,14 @@ void Population::random_vaccination(int vaccinated) {
     int count = 0;
     for(int ind = 0; count < vaccinated && ind < people.size(); ind++) {
         Person& person = people[ran_indices[ind]];
-        if(person.get_state() != State::SUSCEPTIBLE) { continue; }
+        if(person.get_state() != State::SUSCEPTIPLE) { continue; }
         person.get_vaccinated();
         count++; 
     }
 }
 
 int Population::count_healthy() { 
-    return std::count_if(people.begin(), people.end(), [](Person& per){return per.get_state() == State::SUSCEPTIBLE;});
+    return std::count_if(people.begin(), people.end(), [](Person& per){return per.get_state() == State::SUSCEPTIPLE;});
 }
 
 int Population::count_infected() { 

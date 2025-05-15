@@ -6,7 +6,7 @@
 #include <vector>
 
 enum class State {
-  SUSCEPTIBLE,
+  SUSCEPTIPLE,
   INFECTED,
   VACCINATED,
 };
@@ -39,7 +39,7 @@ public:
   void direct_infection(Disease& disease);
 
 private:
-  State state = State::SUSCEPTIBLE;
+  State state = State::SUSCEPTIPLE;
   int days_to_recover = 0;
   Disease dis;
   Disease& disease();

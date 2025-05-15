@@ -4,14 +4,18 @@
 
 TEST_CASE("Test simulation class") { 
     Simulation sim = Simulation();
+    
+    SUBCASE("run_test()") {
+        sim.run(1, 5, "Corona", 2, 0.1, "Deggendorf", 0.2, true);
+    }
 }
 
 TEST_CASE("Test person class") { 
     Person per;
 
     SUBCASE("get_state_test()") {
-        DOCTEST_CHECK_EQ(per.person_status(), "susceptible");
-        DOCTEST_CHECK_EQ(per.get_state(), State::SUSCEPTIBLE);
+        DOCTEST_CHECK_EQ(per.person_status(), "susceptiple");
+        DOCTEST_CHECK_EQ(per.get_state(), State::SUSCEPTIPLE);
     }
 
     SUBCASE("get_infected_test()") {
