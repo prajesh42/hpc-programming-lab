@@ -104,13 +104,10 @@ TEST_CASE("Test person class") {
     }
 
     SUBCASE("touch_multiple_person_test()") {
-        Disease flu;
-        flu.duration() = 20;
-        flu.transfer_probability() = 1.0f; 
+        Disease flu(20, 0.7f);
 
         Person infected;
-        infected.infect(flu);
-        infected.disease().transfer_probability() = 0.7f;
+        infected.direct_infection(flu);
         
         float count = 0.0f;
         for(int per = 1; per < people; per++) {
@@ -123,6 +120,13 @@ TEST_CASE("Test person class") {
         float chance = count/people;
         DOCTEST_CHECK(chance >= 0.6);
         DOCTEST_CHECK(chance <= 0.8);
+    }
+
+    SUBCASE("direct_infection_test()") {
+        Person person;
+        Disease flu(20, 0.7f);
+        person.direct_infection(flu);
+        DOCTEST_CHECK(person.get_state() == State::INFECTED);
     }
 }
 
@@ -184,10 +188,14 @@ TEST_CASE("Test Population class") {
         DOCTEST_CHECK_EQ(8, pop.count_vaccinated());
     }
 
-    SUBCASE("infection_with_complete_vaccination_test()") {
+    SUBCASE("random_infection_test()") {
         Population pop(1000);
         pop.random_infection(30, disease);
         DOCTEST_CHECK(30 == pop.count_infected());
+    }
+
+    SUBCASE("complete_vaccination_test()") {
+        Population pop(1000);
         pop.random_vaccination(1000);
         DOCTEST_CHECK(1000 == pop.count_vaccinated());
     }
@@ -195,23 +203,8 @@ TEST_CASE("Test Population class") {
     SUBCASE("one_more_day_test()") {
         Population pop(1000);
         pop.random_infection(1, disease);
-        for(int days = 0; days < 10; ++days) {
-            pop.one_more_day();
-        }
-        DOCTEST_CHECK(0 == pop.count_infected());
-    }
-
-    SUBCASE("one_more_day_infected_test()") {
-        Population pop(1000);
-        pop.random_infection(5, disease);
-        for(int days = 0; days < 10 ; ++days) {
-            int infected = pop.count_infected();
-            int healthy = pop.count_healthy();
-            DOCTEST_CHECK(5 == infected);
-            DOCTEST_CHECK(1000 == (healthy + infected));
-            pop.one_more_day();
-        }
-        DOCTEST_CHECK(0 == pop.count_infected());
+        pop.one_more_day();
+        DOCTEST_CHECK(3 <= pop.count_infected());
     }
 
     SUBCASE("routine_test()") {
@@ -230,8 +223,7 @@ TEST_CASE("Test Population class") {
         Disease dis(5, 1.0f);
         pop.get_people()[10].infect(dis);
         pop.one_more_day();
-        pop.infect_neighbors();
-        DOCTEST_CHECK(3 == pop.count_infected());
+        DOCTEST_CHECK(3 <= pop.count_infected());
     }
 
     SUBCASE("infect_neighbors_next_day_initial_index_test()") {
@@ -239,8 +231,7 @@ TEST_CASE("Test Population class") {
         Disease dis(5, 1.0f);
         pop.get_people()[0].infect(dis);
         pop.one_more_day();
-        pop.infect_neighbors();
-        DOCTEST_CHECK(2 == pop.count_infected());
+        DOCTEST_CHECK(2 <= pop.count_infected());
     }
 
     SUBCASE("infect_neighbors_next_day_last_index_test()") {
@@ -248,32 +239,36 @@ TEST_CASE("Test Population class") {
         Disease dis(5, 1.0f);
         pop.get_people()[19].infect(dis);
         pop.one_more_day();
-        pop.infect_neighbors();
-        DOCTEST_CHECK(2 == pop.count_infected());
-    }
-
-    SUBCASE("people_infected_days_test()") {
-        Population pop(20);
-        Disease dis(5, 1.0f);
-        pop.get_people()[0].infect(dis);
-        int days = 0;
-        for(int step = 1; ; ++step) {
-            if(pop.count_infected() == 0) {
-                days = step;
-                break;
-            }
-            pop.one_more_day();
-            pop.infect_neighbors();
-        }
-        
-        DOCTEST_CHECK(25 == days);
+        DOCTEST_CHECK(2 <= pop.count_infected());
     }
 
     SUBCASE("random_interactions_test()") {
-        Population pop(20);
+        Population pop(50);
         Disease dis(5, 1.0f);
         pop.random_infection(1, dis);
-        pop.random_interactions(6);
-        DOCTEST_CHECK(7 == pop.count_infected());
+        pop.one_more_day();
+        pop.one_more_day();
+        DOCTEST_CHECK(30 <= pop.count_infected());
+    }
+
+    SUBCASE("count_healthy_test()") {
+        Population pop(50);
+        Disease dis(5, 1.0f);
+        pop.random_infection(5, dis);
+        DOCTEST_CHECK(45 == pop.count_healthy());
+    }
+
+    SUBCASE("count_infected_test()") {
+        Population pop(50);
+        Disease dis(5, 1.0f);
+        pop.random_infection(5, dis);
+        DOCTEST_CHECK(5 == pop.count_infected());
+    }
+
+    SUBCASE("count_vaccinated_test()") {
+        Population pop(50);
+        Disease dis(5, 1.0f);
+        pop.random_vaccination(10);
+        DOCTEST_CHECK(10 == pop.count_vaccinated());
     }
 }

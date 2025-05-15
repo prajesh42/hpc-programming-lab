@@ -32,9 +32,7 @@ void Person::infect(Disease& d) {
     if(state == State::SUSCEPTIBLE) {
         float ran_num = Utility::gen_random_num();
         if (ran_num <= d.transfer_probability()) {
-            get_infected();
-            (dis) = d;
-            (days_to_recover) = d.duration();
+            direct_infection(d);
         }
     }
 }
@@ -61,4 +59,10 @@ void Person::touch(Person& person) {
     }else if(person.get_state() == State::SUSCEPTIBLE && (state) == State::INFECTED) {
         person.infect(disease());
     }
+}
+
+void Person::direct_infection(Disease& disease) {
+    (dis) = disease;
+    (days_to_recover) = disease.duration();
+    get_infected();
 }

@@ -4,15 +4,14 @@
 
 Population::Population(int size) {
     people.resize(size);
+    ran_indices = Utility::randomized_indices(size);
 }
 
 void Population::random_infection(int infected, Disease& disease) {
-    std::vector<int> ran_indices = Utility::randomized_indices(people.size());
     int count = 0;
     for(int ind = 0; count < infected && ind < people.size(); ind++) {
         Person& person = people[ran_indices[ind]];
         person.infect(disease);
-        dis = disease;
         if(person.get_state() == State::INFECTED) {
             count++;
         }
@@ -20,14 +19,12 @@ void Population::random_infection(int infected, Disease& disease) {
 }
 
 void Population::random_vaccination(int vaccinated) {
-    std::vector<int> ran_indices = Utility::randomized_indices(people.size());
     int count = 0;
     for(int ind = 0; count < vaccinated && ind < people.size(); ind++) {
         Person& person = people[ran_indices[ind]];
+        if(person.get_state() != State::SUSCEPTIBLE) { continue; }
         person.get_vaccinated();
-        if(person.get_state() == State::VACCINATED) {
-            count++;
-        }
+        count++; 
     }
 }
 
@@ -44,9 +41,15 @@ int Population::count_vaccinated() {
 }
 
 void Population::one_more_day() {
-    for(auto& person : people) {
+    std::vector<int> infected_persons;
+    for(int index = 0; index < people.size(); ++index) {
+        Person& person = people[index];
         person.progress_each_day();
+        if(person.get_state() == State::INFECTED) {
+            infected_persons.push_back(index);
+        }
     }
+    infect_neighbors(infected_persons);
 }
 
 std::string Population::routine() {
@@ -67,21 +70,15 @@ std::string Population::routine() {
     return status;
 }
 
-void Population::infect_neighbors() {
-    bool left_touched = false;
-    bool right_touched = false;
-    for(int index = 0; index < people.size(); ++index) {
-        if(people[index].get_state() == State::INFECTED) {
-            if(!left_touched && index > 0 && people[index - 1].get_state() == State::SUSCEPTIBLE) {
-                people[index].touch(people[index - 1]);
-                left_touched = true;
-            }
-            if(!right_touched && index + 1 < people.size() && people[index + 1].get_state() == State::SUSCEPTIBLE) {
-                people[index].touch(people[index + 1]); 
-                right_touched = true;
-            }
+void Population::infect_neighbors(std::vector<int>& infected_persons) {
+    for(auto& index: infected_persons) {
+        if(index > 0 ) {
+            people[index].touch(people[index - 1]);
         }
-        if(left_touched && right_touched) { break;}
+        if(index + 1 < people.size()) {
+            people[index].touch(people[index + 1]);
+        }
+        random_interactions(6, people[index]);
     }
 }
 
@@ -89,9 +86,9 @@ std::vector<Person>& Population::get_people() {
     return people;
 }
 
-void Population::random_interactions(int people_size) {
-    int infected = count_infected();
-    while(infected-->0) {
-        random_infection(people_size, dis);
+void Population::random_interactions(int people_size, Person& infected_person) {
+    std::vector<int> interac_indices = Utility::random_fixed_elements(ran_indices, people_size);
+    for(auto& index: interac_indices) {
+        infected_person.touch(people[index]);
     }
 }
