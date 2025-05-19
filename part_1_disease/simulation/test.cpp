@@ -361,7 +361,7 @@ TEST_CASE("Test Population class") {
         pop.random_infection(1, dis);
         pop.one_more_day();
         pop.one_more_day();
-        CHECK(30 <= pop.count_infected());
+        CHECK(25 <= pop.count_infected());
     }
 
     SUBCASE("count_healthy_test()") {

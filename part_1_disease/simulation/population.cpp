@@ -4,27 +4,38 @@
 
 Population::Population(int size) {
     people.resize(size);
-    ran_indices = Utility::randomized_indices(size);
 }
 
 void Population::random_infection(int infected, Disease& disease) {
+    std::vector<int> indices(people.size());
+    std::iota(indices.begin(), indices.end(), 0);
+    std::shuffle(indices.begin(), indices.end(), Utility::engine());
+
     int count = 0;
-    for(int ind = 0; count < infected && ind < people.size(); ind++) {
-        Person& person = people[ran_indices[ind]];
-        person.infect(disease);
-        if(person.get_state() == State::INFECTED) {
-            count++;
+    for (int ind = 0; ind < indices.size() && count < infected; ++ind) {
+        Person& person = people[indices[ind]];
+
+        if (person.get_state() == State::SUSCEPTIPLE) {
+            person.infect(disease);
+            if (person.get_state() == State::INFECTED) {
+                count++;
+            }
         }
     }
 }
 
 void Population::random_vaccination(int vaccinated) {
+    std::vector<int> indices(people.size());
+    std::iota(indices.begin(), indices.end(), 0);
+    std::shuffle(indices.begin(), indices.end(), Utility::engine());
+    
     int count = 0;
-    for(int ind = 0; count < vaccinated && ind < people.size(); ind++) {
-        Person& person = people[ran_indices[ind]];
-        if(person.get_state() != State::SUSCEPTIPLE) { continue; }
-        person.get_vaccinated();
-        count++; 
+    for (int ind = 0; ind < indices.size() && count < vaccinated; ++ind) {
+        Person& person = people[indices[ind]];
+        if (person.get_state() == State::SUSCEPTIPLE) {
+            person.get_vaccinated();
+            count++;
+        }
     }
 }
 
@@ -41,13 +52,13 @@ int Population::count_vaccinated() {
 }
 
 void Population::one_more_day() {
-    std::vector<int> infected_persons;
+    std::vector<Person> infected_persons;
     for(int index = 0; index < people.size(); ++index) {
         Person& person = people[index];
-        person.progress_each_day();
         if(person.get_state() == State::INFECTED) {
-            infected_persons.push_back(index);
+            infected_persons.push_back(person);
         }
+        person.progress_each_day();
     }
     infect_neighbors(infected_persons);
 }
@@ -70,15 +81,9 @@ std::string Population::routine() {
     return status;
 }
 
-void Population::infect_neighbors(std::vector<int>& infected_persons) {
-    for(auto& index: infected_persons) {
-        if(index > 0 ) {
-            people[index].touch(people[index - 1]);
-        }
-        if(index + 1 < people.size()) {
-            people[index].touch(people[index + 1]);
-        }
-        random_interactions(6, people[index]);
+void Population::infect_neighbors(std::vector<Person>& infected_persons) {
+    for(auto& person: infected_persons) {
+        random_interactions(6, person);
     }
 }
 
@@ -87,8 +92,13 @@ std::vector<Person>& Population::get_people() {
 }
 
 void Population::random_interactions(int people_size, Person& infected_person) {
-    std::vector<int> interac_indices = Utility::random_fixed_elements(ran_indices, people_size);
-    for(auto& index: interac_indices) {
-        infected_person.touch(people[index]);
+    int total_size = people.size();
+    int count = 0;
+    for(int ind = 0; count < people_size && ind < total_size; ++ind) {
+        int rand_index = Utility::randomized_indices(total_size);
+        Person& person = people[rand_index];
+        if(&person == &infected_person) continue;
+        infected_person.touch(person);
+        count++;
     }
 }

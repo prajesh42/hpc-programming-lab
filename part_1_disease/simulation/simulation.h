@@ -4,6 +4,8 @@
 
 #include <string>
 #include <vector>
+#include <random>
+#include <unordered_set>
 
 enum class State {
   SUSCEPTIPLE,
@@ -55,13 +57,12 @@ class Population {
     int count_vaccinated();
     void one_more_day();
     std::string routine();
-    void infect_neighbors(std::vector<int>& infected_persons);
+    void infect_neighbors(std::vector<Person>& infected_persons);
     std::vector<Person>& get_people();
     void random_interactions(int people_size, Person& person);
 
   private:
     std::vector<Person> people;
-    std::vector<int> ran_indices;
 };
 
 class Simulation {
@@ -76,9 +77,9 @@ private:
 
 class Utility {
 public:
+  static std::default_random_engine& engine();
   static float gen_random_num();
-  static std::vector<int> randomized_indices(int elements_size);
-  static std::vector<int> random_fixed_elements(std::vector<int> indices, int sample_size);
+  static int randomized_indices(int elements_size);
 
 private:
 };
