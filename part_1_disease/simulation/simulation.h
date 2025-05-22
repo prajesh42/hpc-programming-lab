@@ -82,7 +82,7 @@ class Utility {
 public:
   static std::default_random_engine& engine();
   static float gen_random_num();
-  static int randomized_indices(int elements_size);
+  static std::vector<int> randomized_indices(int elements_size, int sample_size);
   static std::vector<int> shuffled_indices(int elements_size);
   static std::pair<double, double> calc_mean_stdev(const std::vector<int>& elements);
 

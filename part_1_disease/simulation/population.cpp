@@ -81,13 +81,10 @@ std::vector<Person>& Population::get_people() {
 }
 
 void Population::random_interactions(int people_size, Person& infected_person) {
-    int total_size = people.size();
-    int count = 0;
-    for(int ind = 0; count < people_size && ind < total_size; ++ind) {
-        int rand_index = Utility::randomized_indices(total_size);
-        Person& person = people[rand_index];
+    std::vector<int> ran_indices = Utility::randomized_indices(people.size(), people_size);
+    for(auto& ind: ran_indices) {
+        Person& person = people[ind];
         if(&person == &infected_person) continue;
         infected_person.touch(person);
-        count++;
     }
 }

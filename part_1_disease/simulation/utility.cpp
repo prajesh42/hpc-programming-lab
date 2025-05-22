@@ -19,13 +19,17 @@ float Utility::gen_random_num() {
 }
 
 /**
- * @brief Random index for the given elements size
+ * @brief Random indices for the given elements size
  * @param elements_size 
- * @return int 
+ * @return std::vector<int> 
  */
-int Utility::randomized_indices(int elements_size) {
+std::vector<int> Utility::randomized_indices(int elements_size, int sample_size) {
+    std::vector<int> sample_indices;
     std::uniform_int_distribution<int> dis(0, elements_size - 1);
-    return dis(engine());
+    for(int ind = 0; ind < sample_size; ++ind) {
+        sample_indices.push_back(dis(engine()));
+    }
+    return sample_indices;
 }
 
 /**
