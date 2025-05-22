@@ -21,9 +21,25 @@ float Utility::gen_random_num() {
 
 /**
  * @brief Random index for the given elements size
- * @return int
+ * @param elements_size 
+ * @return int 
  */
- int Utility::randomized_indices(int elements_size) {
+int Utility::randomized_indices(int elements_size) {
     std::uniform_int_distribution<int> dis(0, elements_size - 1);
     return dis(engine());
 }
+
+/**
+ * @brief Shuffle indicies for the given elements size
+ * @param elements_size 
+ * @return std::vector<int> 
+ */
+std::vector<int> Utility::shuffled_indices(int elements_size) {
+    std::vector<int> indices(elements_size);
+    std::iota(indices.begin(), indices.end(), 0);
+    std::shuffle(indices.begin(), indices.end(), Utility::engine());
+    return indices;
+}
+
+
+

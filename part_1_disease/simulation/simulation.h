@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <random>
-#include <unordered_set>
+#include <algorithm>
 
 enum class State {
   SUSCEPTIPLE,
@@ -80,6 +80,7 @@ public:
   static std::default_random_engine& engine();
   static float gen_random_num();
   static int randomized_indices(int elements_size);
+  static std::vector<int> shuffled_indices(int elements_size);
 
 private:
 };

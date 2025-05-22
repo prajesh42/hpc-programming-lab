@@ -1,36 +1,25 @@
 #include "simulation.h"
 #include <iostream>
-#include <algorithm>
 
 Population::Population(int size) {
     people.resize(size);
 }
 
 void Population::random_infection(int infected, Disease& disease) {
-    std::vector<int> indices(people.size());
-    std::iota(indices.begin(), indices.end(), 0);
-    std::shuffle(indices.begin(), indices.end(), Utility::engine());
-
+    int total_size = people.size();
+    std::vector<int> indices = Utility::shuffled_indices(total_size);
     int count = 0;
-    for (int ind = 0; ind < indices.size() && count < infected; ++ind) {
-        Person& person = people[indices[ind]];
-
-        if (person.get_state() == State::SUSCEPTIPLE) {
-            person.infect(disease);
-            if (person.get_state() == State::INFECTED) {
-                count++;
-            }
-        }
+    for (int ind = 0; ind < total_size && count < infected; ++ind) {
+        people[indices[ind]].direct_infection(disease);
+        count++;
     }
 }
 
 void Population::random_vaccination(int vaccinated) {
-    std::vector<int> indices(people.size());
-    std::iota(indices.begin(), indices.end(), 0);
-    std::shuffle(indices.begin(), indices.end(), Utility::engine());
-    
+    int total_size = people.size();
+    std::vector<int> indices = Utility::shuffled_indices(total_size);
     int count = 0;
-    for (int ind = 0; ind < indices.size() && count < vaccinated; ++ind) {
+    for (int ind = 0; ind < total_size && count < vaccinated; ++ind) {
         Person& person = people[indices[ind]];
         if (person.get_state() == State::SUSCEPTIPLE) {
             person.get_vaccinated();
