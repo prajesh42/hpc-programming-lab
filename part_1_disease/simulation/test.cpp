@@ -7,7 +7,7 @@ void write_sample_ini(const std::string& filename) {
     file << "[global]\n";
     file << "simulation_name = test_sim\n";
     file << "num_populations = 1\n";
-    file << "simulation_runs = 1\n\n";
+    file << "simulation_runs = 5\n\n";
 
     file << "[disease]\n";
     file << "name = TestFlu\n";
@@ -16,54 +16,62 @@ void write_sample_ini(const std::string& filename) {
 
     file << "[population_1]\n";
     file << "name = Testville\n";
-    file << "size = 50\n";
+    file << "size = 10\n";
     file << "vaccination_rate = 0.2\n";
     file << "patient_0 = true\n";
 
     file.close();
 }
 
-TEST_CASE("Test simulation class") {
-    
-    SUBCASE("start_test()") {
-        const std::string ini_file = "test_disease.ini";
-        const std::string details_file = "disease_details.csv";
-        const std::string stats_file = "disease_stats.csv";
+TEST_CASE("simulation_integration_test()") {
+    const std::string ini_file = "test_disease.ini";
+    const std::string details_file = "disease_details_test_sim.csv";
+    const std::string stats_file = "disease_stats_test_sim.csv";
 
-        write_sample_ini(ini_file);
+    write_sample_ini(ini_file);
 
-        Simulation sim(ini_file);
-        sim.start();
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
-        std::ifstream details(details_file);
-        std::ifstream stats(stats_file);
+    Simulation sim(ini_file);
+    sim.start();
 
-        REQUIRE(details.is_open());
-        REQUIRE(stats.is_open());
+    std::cout.rdbuf(old);
 
-        std::string first_line;
-        std::getline(details, first_line);
-        CHECK(first_line == "name,infectious,recovered,susceptiple,vaccinated");
+    std::string out = buffer.str();
+    CHECK(out.find("Input file: test_disease.ini") != std::string::npos);
 
-        std::getline(stats, first_line);
-        CHECK(first_line == "key,value");
+    std::ifstream details(details_file);
+    std::ifstream stats(stats_file);
 
-        std::string content_line;
-        bool has_data = false;
-        while (std::getline(stats, content_line)) {
-            if (!content_line.empty() && content_line.find(',') != std::string::npos) {
-                has_data = true;
-                break;
-            }
+    REQUIRE(details.is_open());
+    REQUIRE(stats.is_open());
+
+    std::string first_line;
+    std::getline(details, first_line);
+    CHECK(first_line == "run,name,infectious,recovered,susceptiple,vaccinated");
+
+    std::getline(stats, first_line);
+    CHECK(first_line == "key,mean,std");
+
+    std::string content_line;
+    bool has_data = false;
+    while (std::getline(stats, content_line)) {
+        if (!content_line.empty() && content_line.find(',') != std::string::npos) {
+            has_data = true;
+            break;
         }
-
-        CHECK(has_data);
-        details.close();
-        stats.close();
-        std::remove(ini_file.c_str());
-        std::remove(details_file.c_str());
-        std::remove(stats_file.c_str());
     }
+
+    CHECK(has_data);
+    details.close();
+    stats.close();
+    std::remove(ini_file.c_str());
+    std::remove(details_file.c_str());
+    std::remove(stats_file.c_str());
+}
+
+TEST_CASE("Test simulation class") {
 
     SUBCASE("simulation_missing_file_test()") {
         const std::string missing_file = "nonexistent.ini";
@@ -73,7 +81,7 @@ TEST_CASE("Test simulation class") {
     
         Simulation sim(missing_file);
         sim.start();
-    
+
         std::cerr.rdbuf(old_buf);
     
         std::string error_output = err_buffer.str();
@@ -81,11 +89,19 @@ TEST_CASE("Test simulation class") {
     }
 
     SUBCASE("run_test()") {
-        const std::string details_file = "disease_details.csv";
-        const std::string stats_file = "disease_stats.csv";
+        const std::string details_file = "disease_details_test.csv";
+        const std::string stats_file = "disease_stats_test.csv";
+
+        std::stringstream buffer;
+        std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
 
         Simulation sim;
-        sim.run(1, 10, "Corona", 4, 0.9, "Deggendorf", 0.1, true);
+        sim.run("test", 5, 10, 4, 0.9, "Deggendorf", 0.1);
+
+        std::cout.rdbuf(old);
+
+        std::string out = buffer.str();
+        CHECK(out.find("Running") != std::string::npos);
 
         std::ifstream details(details_file);
         std::ifstream stats(stats_file);
@@ -95,10 +111,10 @@ TEST_CASE("Test simulation class") {
 
         std::string first_line;
         std::getline(details, first_line);
-        CHECK(first_line == "name,infectious,recovered,susceptiple,vaccinated");
+        CHECK(first_line == "run,name,infectious,recovered,susceptiple,vaccinated");
 
         std::getline(stats, first_line);
-        CHECK(first_line == "key,value");
+        CHECK(first_line == "key,mean,std");
 
         std::string content_line;
         bool has_data = false;
@@ -114,6 +130,42 @@ TEST_CASE("Test simulation class") {
         stats.close();
         std::remove(details_file.c_str());
         std::remove(stats_file.c_str());
+    }
+
+    SUBCASE("calc_print_test()") {
+        std::vector<int> steps    = {50, 60, 70};
+        std::vector<int> healthy  = {1000, 1005, 995};
+        std::vector<int> recovered= {14000, 13950, 14050};
+        std::vector<int> vaccinated = {1500, 1500, 1500};
+
+        std::stringstream buffer;
+        std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+        Simulation sim;
+        sim.calc_print("test", 3, steps, healthy, recovered, vaccinated);
+
+        std::cout.rdbuf(old);
+        std::string out = buffer.str();
+        CHECK(out.find("Total statistics for") != std::string::npos);
+
+        std::ifstream file("disease_stats_test.csv");
+        REQUIRE(file.is_open());
+
+        std::string header;
+        std::getline(file, header);
+        CHECK(header == "key,mean,std");
+
+        std::string line;
+        int line_count = 0;
+        while (std::getline(file, line)) {
+            CHECK(line.find("avg(") != std::string::npos);
+            ++line_count;
+        }
+        CHECK(line_count == 4);
+
+        file.close();
+
+        std::remove("disease_stats_test.csv");
     }
 }
 
@@ -383,5 +435,28 @@ TEST_CASE("Test Population class") {
         Disease dis(5, 1.0f);
         pop.random_vaccination(10);
         CHECK(10 == pop.count_vaccinated());
+    }
+}
+
+TEST_CASE("Test Utility class") {
+
+    SUBCASE("gen_random_num_test()") {
+        float count = 0.0f;
+        for (int i = 0; i < 100; ++i) {
+            float r = Utility::gen_random_num();
+            if( r < 0.5) {
+                count++;
+            }
+        }
+        float val = count/100;
+        CHECK(val > 0.4);
+        CHECK(val < 0.6);
+    }
+
+    SUBCASE("calc_mean_stdev_test()") {
+        std::vector<int> data = {2, 4, 4, 4, 5, 5, 7, 9};
+        std::pair<double,double> mean_std = Utility::calc_mean_stdev(data);
+        CHECK(mean_std.first == 5.0);
+        CHECK(mean_std.second == 2.0);
     }
 }

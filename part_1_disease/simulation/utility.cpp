@@ -2,11 +2,10 @@
 
 /**
  * @brief Common random engine
- * @return reference of default_random_engine
+ * @return std::default_random_engine& 
  */
 std::default_random_engine& Utility::engine() {
-    static std::random_device rd;
-    static std::default_random_engine gen(rd());
+    static std::default_random_engine gen(std::random_device{}());
     return gen;
 }
 
@@ -41,5 +40,26 @@ std::vector<int> Utility::shuffled_indices(int elements_size) {
     return indices;
 }
 
+/**
+ * @brief Calculate mean and standard deviation
+ * @param elements 
+ * @return std::pair<double, double> 
+ */
+std::pair<double, double> Utility::calc_mean_stdev(
+    const std::vector<int>& elements) {
+    int size = elements.size();
+    if (size == 0) return {0, 0};
 
+    double sum = std::accumulate(elements.begin(), elements.end(), 0.0);
+    double mean = sum / size;
 
+    double square_sum = 0.0;
+    for (double value : elements) {
+        double diff = value - mean;
+        square_sum += diff * diff;
+    }
+
+    double stdev = std::sqrt(square_sum / size);
+
+    return {mean, stdev};
+}

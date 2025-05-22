@@ -69,9 +69,12 @@ class Simulation {
 public:
   Simulation(std::string in_file = "disease_in.ini");
   void start();
-  void run(int sim_runs, int num_pop, std::string disease_name, int duration, float trans, std::string location_name, float vac_rate, bool patient_0);
+  void run(std::string sim_name, int sim_runs, int num_pop, int duration, 
+           float trans, std::string location_name, float vac_rate);
+  void calc_print(std::string sim_name, int sim_runs, std::vector<int>& steps_values, std::vector<int>& healthy_values,
+                  std::vector<int>& recovered_values,std::vector<int>& vaccinated_values);
 
-private:
+ private:
   std::string input_file;
 };
 
@@ -81,6 +84,7 @@ public:
   static float gen_random_num();
   static int randomized_indices(int elements_size);
   static std::vector<int> shuffled_indices(int elements_size);
+  static std::pair<double, double> calc_mean_stdev(const std::vector<int>& elements);
 
 private:
 };
