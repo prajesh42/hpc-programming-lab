@@ -2,12 +2,11 @@
 FROM debian:bookworm-slim AS build
 
 # Updates and install all the necessary tools for builing the app 
-# This will makes sure that re-installation doeesn't happen as long as base image doesn't change
+# This will makes sure that re-installation doesn't happen as long as base image doesn't change
 RUN apt-get update && apt-get install -y build-essential cmake && apt-get clean
 
 WORKDIR /src 
 COPY CMakeLists.txt /src
-COPY disease_in.ini /src
 COPY simulation /src/simulation
 COPY include /src/include 
 
