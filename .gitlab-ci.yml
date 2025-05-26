@@ -35,7 +35,13 @@ run_tests:
   needs: ["build_project"]
   script:
     - chmod +x $BUILD_DIR/test
-    - ./$BUILD_DIR/test
+    - ./$BUILD_DIR/test --reporter junit --out $BUILD_DIR/test-report.xml
+  artifacts:
+    reports:
+      junit: $BUILD_DIR/test-report.xml
+    paths:
+      - $BUILD_DIR/test-report.xml
+    expire_in: 1 hour
 
 docker_build:
   stage: docker
