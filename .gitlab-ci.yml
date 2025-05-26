@@ -7,6 +7,8 @@ variables:
   PROJECT_DIR: part_1_disease
   BUILD_DIR: $PROJECT_DIR/build
   IMAGE_TAG: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  DOCKER_HOST: tcp://docker:2375
+  DOCKER_TLS_CERTDIR: ""
 
 # Use Docker image with build tools and CMake
 image: docker:24.0.5
@@ -41,8 +43,8 @@ docker_build:
   stage: docker
   needs: ["build_project"]
   script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - docker build -t $IMAGE_TAG .
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+    - docker build -t $IMAGE_TAG $PROJECT_DIR
     - docker push $IMAGE_TAG
   only:
     - main
