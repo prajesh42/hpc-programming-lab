@@ -1,0 +1,5 @@
+key,mean,std
+avg(steps),36.0,49.2
+avg(healthy),5617.6,752.3
+avg(recovered),382.4,752.3
+avg(vaccinated),24000.0,0.0
