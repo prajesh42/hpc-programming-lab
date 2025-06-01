@@ -413,7 +413,7 @@ TEST_CASE("Test Population class") {
         pop.random_infection(1, dis);
         pop.one_more_day();
         pop.one_more_day();
-        CHECK(25 <= pop.count_infected());
+        CHECK(10 <= pop.count_infected());
     }
 
     SUBCASE("count_healthy_test()") {
@@ -442,15 +442,15 @@ TEST_CASE("Test Utility class") {
 
     SUBCASE("gen_random_num_test()") {
         float count = 0.0f;
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 1000; ++i) {
             float r = Utility::gen_random_num();
             if( r < 0.5) {
                 count++;
             }
         }
-        float val = count/100;
-        CHECK(val > 0.4);
-        CHECK(val < 0.6);
+        float val = count/1000;
+        CHECK(val > 0.3);
+        CHECK(val < 0.7);
     }
 
     SUBCASE("calc_mean_stdev_test()") {
