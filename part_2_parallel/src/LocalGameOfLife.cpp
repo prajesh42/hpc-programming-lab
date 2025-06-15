@@ -37,10 +37,8 @@ LocalGameOfLife::LocalGameOfLife(int local_rows, int local_cols, MPI_Comm cart_c
     // Currently all are set to rank 0, this means 0 is its own neighbor in all directions! When you onlu use
     // one MPI process (mpirun -n 1) and after implementing exchange_halo() this would even work for the periodic
     // boundary conditions! Try to understand why!
-    nbr_n_ = 0;
-    nbr_s_ = 0;
-    nbr_w_ = 0;
-    nbr_e_ = 0;
+    MPI_Cart_shift(cart_comm_, 0, 1, &nbr_n_, &nbr_s_);
+    MPI_Cart_shift(cart_comm_, 1, 1, &nbr_w_, &nbr_e_);
 
     // Setup of current and next grid for Game Of Life. Check any web tutorial or the wikipedia page for why two
     // grids are used.
