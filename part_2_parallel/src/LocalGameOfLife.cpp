@@ -32,8 +32,8 @@ LocalGameOfLife::LocalGameOfLife(int local_rows, int local_cols, MPI_Comm cart_c
 
     // nbr_x_ are all neighbor ranks (==subgrids) in all 4 directions in 2D, expressed via North, South, East, West.
     //
-    // TODO: Implement correct neighbor ranks for each process and do not hardcode it like in the example! Use
-    // TODO  MPI_Cart_shift (more convenient) or calculate them manually using dimensions and ranks.
+    // Implement correct neighbor ranks for each process and do not hardcode it like in the example! Use
+    // MPI_Cart_shift (more convenient) or calculate them manually using dimensions and ranks.
     // Currently all are set to rank 0, this means 0 is its own neighbor in all directions! When you onlu use
     // one MPI process (mpirun -n 1) and after implementing exchange_halo() this would even work for the periodic
     // boundary conditions! Try to understand why!
@@ -42,8 +42,8 @@ LocalGameOfLife::LocalGameOfLife(int local_rows, int local_cols, MPI_Comm cart_c
 
     // Setup of current and next grid for Game Of Life. Check any web tutorial or the wikipedia page for why two
     // grids are used.
-    current_grid_ = Eigen::MatrixXi::Zero(local_rows_, local_cols_);
-    next_grid_ = Eigen::MatrixXi::Zero(local_rows_, local_cols_);
+    current_grid_ = Eigen::MatrixXi::Zero(local_rows_ + 2 * halo_size_, local_cols_  + 2 * halo_size_);
+    next_grid_ = Eigen::MatrixXi::Zero(local_rows_ + 2 * halo_size_, local_cols_ + 2 * halo_size_);
 }
 
 void LocalGameOfLife::randomize(double alive_prob) {
@@ -87,7 +87,7 @@ void LocalGameOfLife::exchange_halos() {
 
     DEBUG_LOG("Rank " << cart_rank_ << " neighbors: N=" << nbr_n_
                       << ", S=" << nbr_s_ << ", W=" << nbr_w_ << ", E=" << nbr_e_ << std::endl);
-    // TODO This is the main challenge of the project! You must implement the halo exchange logic using MPI
+    // This is the main challenge of the project! You must implement the halo exchange logic using MPI
     // Here are some hints:
     // * Memory layout is critical to this task! Both rows and columns may not have a contiguous layout, even
     //   as Eigen::Matrix (think about why! It is related to the Halo region!)
@@ -97,37 +97,43 @@ void LocalGameOfLife::exchange_halos() {
     //   at once. When you start implementing a Halo size 1, you'll still get an almost correct simulation. Only
     //   for the corners of each local grid a halo size 1 will break down. Why?
 
-    Eigen::RowVectorXi send_row = current_grid_.row(local_rows_ - 1);
-    Eigen::RowVectorXi recv_row(local_cols_);
-
-    //south
-    MPI_Sendrecv(send_row.data(), local_cols_, MPI_INT, nbr_s_, 0,
-                recv_row.data(), local_cols_, MPI_INT, nbr_n_, 0,
-                cart_comm_, &status);
-    current_grid_.row(0) = recv_row;
-
-    //north
-    send_row = current_grid_.row(1);
-    MPI_Sendrecv(send_row.data(), local_cols_, MPI_INT, nbr_n_, 1,
-                recv_row.data(), local_cols_, MPI_INT, nbr_s_, 1,
-                cart_comm_, &status);
-    current_grid_.row(local_rows_ - 1) = recv_row;
-    
-    Eigen::VectorXi send_col = current_grid_.col(local_cols_ - 1);
-    Eigen::VectorXi recv_col(local_rows_);
-    
-    //east
-    MPI_Sendrecv(send_col.data(), local_rows_, MPI_INT, nbr_e_, 2,
-                recv_col.data(), local_rows_, MPI_INT, nbr_w_, 2,
-                cart_comm_, &status);
-    current_grid_.col(0) = recv_col;
+    Eigen::MatrixXi send_cols(local_rows_, halo_size_);
+    Eigen::MatrixXi recv_cols(local_rows_, halo_size_);
 
     //west
-    send_col = current_grid_.col(1);
-    MPI_Sendrecv(send_col.data(), local_rows_, MPI_INT, nbr_w_, 3,
-                recv_col.data(), local_rows_, MPI_INT, nbr_e_, 3,
+    send_cols = current_grid_.block(halo_size_, local_cols_, local_rows_, halo_size_);
+    MPI_Sendrecv(send_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_w_, 0,
+                recv_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_e_, 0,
                 cart_comm_, &status);
-    current_grid_.col(local_cols_ - 1) = recv_col;
+    
+    current_grid_.block(halo_size_, 0, local_rows_, halo_size_) = recv_cols;
+
+    //east
+    send_cols = current_grid_.block(halo_size_, halo_size_, local_rows_, halo_size_);
+    MPI_Sendrecv(send_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_e_, 1,
+                recv_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_w_, 1,
+                cart_comm_, &status);
+    
+    current_grid_.block(halo_size_, local_cols_, local_rows_, halo_size_) = recv_cols;
+
+    Eigen::MatrixXi send_rows(halo_size_, local_cols_ + halo_size_);
+    Eigen::MatrixXi recv_rows(halo_size_, local_cols_ + halo_size_);
+
+    //north
+    send_rows = current_grid_.block(local_rows_, halo_size_, halo_size_, local_cols_ + halo_size_);
+    MPI_Sendrecv(send_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_n_, 2,
+                recv_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_s_, 2,
+                cart_comm_, &status);
+    
+    current_grid_.block(0, halo_size_, halo_size_, local_cols_ + halo_size_) = recv_rows;
+
+    //south
+    send_rows = current_grid_.block(halo_size_, halo_size_, halo_size_, local_cols_ + halo_size_);
+    MPI_Sendrecv(send_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_s_, 3,
+                recv_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_n_, 3,
+                cart_comm_, &status);
+    
+    current_grid_.block(local_rows_ + halo_size_, halo_size_, halo_size_, local_cols_ + halo_size_) = recv_rows;
 }
 
 void LocalGameOfLife::print_matrix(const Eigen::MatrixXi &matrix) {
