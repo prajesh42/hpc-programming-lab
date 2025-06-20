@@ -4,12 +4,6 @@ project(GameOfLifeMPI LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(ENABLE_DEBUG "Enable debug logging" OFF)
-
-if (ENABLE_DEBUG)
-    target_compile_definitions(game_of_life PRIVATE DEBUG)
-endif ()
-
 # Find SFML (version 3.x assumed)
 # find_package(SFML 3 COMPONENTS Graphics Window System REQUIRED)
 include(FetchContent)
@@ -30,6 +24,12 @@ add_executable(game_of_life
         src/GameOfLifeUI.cpp
         src/LocalGameOfLife.cpp
 )
+
+option(ENABLE_DEBUG "Enable debug logging" OFF)
+
+if (ENABLE_DEBUG)
+    target_compile_definitions(game_of_life PRIVATE DEBUG)
+endif ()
 
 # Include directories (assuming headers are in same folder as sources)
 target_include_directories(game_of_life PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
