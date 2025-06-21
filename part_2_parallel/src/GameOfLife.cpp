@@ -92,19 +92,21 @@ void GameOfLife::step() {
 void GameOfLife::output_to_file(const std::string &filename) {
     /*
      * Write the final output to a file.
-     * TODO works for one process, but requires a small change for parallel implementation.
+     * works for one process, but requires a small change for parallel implementation.
      */
     gather_full_grid();
-    std::ofstream outfile(filename);
-    if (!outfile) {
-        throw std::runtime_error("Failed to open output file: " + filename);
-    }
-
-    for (int r = 0; r < global_rows_; ++r) {
-        for (int c = 0; c < global_cols_; ++c) {
-            outfile << (global_grid_(r, c) ? '1' : '0');
+    if (mpi_rank_ == 0) {
+        std::ofstream outfile(filename);
+        if (!outfile) {
+            throw std::runtime_error("Failed to open output file: " + filename);
         }
-        outfile << '\n';
+
+        for (int r = 0; r < global_rows_; ++r) {
+            for (int c = 0; c < global_cols_; ++c) {
+                outfile << (global_grid_(r, c) ? '1' : '0');
+            }
+            outfile << '\n';
+        }
     }
 }
 
