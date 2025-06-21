@@ -66,13 +66,13 @@ int LocalGameOfLife::count_alive_neighbors(int r, int c) const {
  * returning the count. Be careful, this method implements the periodic
  * boundary condition for the sequential case (how?), but this will not be
  * working anymore with the parallel version and a halo region!
- * TODO: Adapt this method to work with the Halo region!
+ * Adapt this method to work with the Halo region!
  */
     int count = 0;
     for (int dr = -1; dr <= 1; ++dr) {
-        int row = (r + dr + local_rows_) % local_rows_;
+        int row = (r + dr + local_rows_ + halo_size_) % (local_rows_ + halo_size_);
         for (int dc = -1; dc <= 1; ++dc) {
-            int col = (c + dc + local_cols_) % local_cols_;
+            int col = (c + dc + local_cols_ + halo_size_) % (local_cols_ + halo_size_);
             if (dr == 0 && dc == 0)
                 continue;
             if (current_grid_(row, col) != 0)
