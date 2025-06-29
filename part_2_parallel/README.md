@@ -167,14 +167,22 @@ The script `scripts/generate_patterns.py` can generate common patterns for testi
     docker run -v .:/scratch <image_name>
     ```
 
-4. Parameters to be used for simulation: 
-    ## Default values
-    1. COL_NUM_MPI_PROCS=1 (Sets number of processors to use)
-    2. ROWS=128
-    3. COLS=128
-    4. LOOP=1000
+ 4. Simulation Parameters
 
-    ## Example command:
-    ```bash
-      docker run -v .:/scratch -e COL_NUM_MPI_PROCS=2 -e ROWS=32 -e COLS=32 -e LOOP=10 <image_name>
-      ```
+  The Docker container supports the following environment variables to configure the Game of Life simulation:
+
+  #### 📌 Default Values
+
+  | Variable             | Description                          | Default |
+  |----------------------|--------------------------------------|---------|
+  | `GOL_NUM_MPI_PROCS`  | Number of MPI processes to use       | `1`     |
+  | `ROWS`               | Number of grid rows                  | `128`   |
+  | `COLS`               | Number of grid columns               | `128`   |
+  | `LOOP`               | Number of simulation iterations      | `1000`  |
+
+  ---
+
+  #### 💡 Example Command
+      ```bash
+        docker run -v .:/scratch -e GOL_NUM_MPI_PROCS=2 -e ROWS=32 -e COLS=32 -e LOOP=10 <image_name>
+        ```
