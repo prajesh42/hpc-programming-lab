@@ -142,3 +142,39 @@ The Game of Life grid is stored in a plain text file format with the following s
 ## Common Patterns
 
 The script `scripts/generate_patterns.py` can generate common patterns for testing. See `scripts/README.md` for usage.
+
+
+## Docker run instructions
+
+## Requirements
+
+- Docker must be installed on your system.
+
+## Instructions to Run the Project
+
+1. Build the Docker image:
+    ```bash
+    docker build -t <image_name> .
+    ```
+
+2. Choose directory where output.txt will be generated
+    ```bash
+    cd /path/to/output/
+    ```
+
+3. Run the game of life simulation using Docker:
+    ```bash
+    docker run -v .:/scratch <image_name>
+    ```
+
+4. Parameters to be used for simulation: 
+    ## Default values
+    1. COL_NUM_MPI_PROCS=1 (Sets number of processors to use)
+    2. ROWS=128
+    3. COLS=128
+    4. LOOP=1000
+
+    ## Example command:
+    ```bash
+      docker run -v .:/scratch -e COL_NUM_MPI_PROCS=2 -e ROWS=32 -e COLS=32 -e LOOP=10 <image_name>
+      ```
