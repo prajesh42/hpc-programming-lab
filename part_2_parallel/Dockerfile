@@ -35,14 +35,11 @@ RUN cp -r /game/build/game_of_life /app
 # Change to a working directory (for temporary files)
 WORKDIR /scratch
 
-RUN useradd -ms /bin/bash mpiuser
-# USER mpiuser
-
 # Set environment defaults
 ENV GOL_NUM_MPI_PROCS=1
 ENV ROWS=128
 ENV COLS=128
-ENV COUNT=1000
+ENV LOOP=1000
+
 # Reads env vars and runs game_of_life using mpirun
-# ENTRYPOINT ["gosu", "mpiuser", "-c", "mpirun --oversubscribe -n $GOL_NUM_MPI_PROCS /app/game_of_life -n -r $ROWS -c $COLS -i $COUNT "]ENTRYPOINT ["gosu", "mpiuser", "mpirun", "--oversubscribe", "-n", "$GOL_NUM_MPI_PROCS", "/app/game_of_life", "-n", "-r", "$ROWS", "-c", "$COLS", "-i", "$COUNT"]
-ENTRYPOINT ["sh", "-c", "mpirun --allow-run-as-root --oversubscribe -n $GOL_NUM_MPI_PROCS /app/game_of_life -n -r $ROWS -c $COLS -i $COUNT"]
+ENTRYPOINT ["sh", "-c", "mpirun --allow-run-as-root --oversubscribe -n $GOL_NUM_MPI_PROCS /app/game_of_life -n -r $ROWS -c $COLS -i $LOOP "]

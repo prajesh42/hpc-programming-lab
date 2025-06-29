@@ -70,9 +70,9 @@ int LocalGameOfLife::count_alive_neighbors(int r, int c) const {
  */
     int count = 0;
     for (int dr = -1; dr <= 1; ++dr) {
-        int row = (r + dr + local_rows_ + halo_size_) % (local_rows_ + halo_size_);
+        int row = r + dr;
         for (int dc = -1; dc <= 1; ++dc) {
-            int col = (c + dc + local_cols_ + halo_size_) % (local_cols_ + halo_size_);
+            int col = c + dc;
             if (dr == 0 && dc == 0)
                 continue;
             if (current_grid_(row, col) != 0)
@@ -98,42 +98,44 @@ void LocalGameOfLife::exchange_halos() {
     //   for the corners of each local grid a halo size 1 will break down. Why?
 
     Eigen::MatrixXi send_cols(local_rows_, halo_size_);
-    Eigen::MatrixXi recv_cols(local_rows_, halo_size_);
+    Eigen::MatrixXi recv_cols = Eigen::MatrixXi::Zero(local_rows_, halo_size_);
 
-    //west
-    send_cols = current_grid_.block(halo_size_, local_cols_, local_rows_, halo_size_);
+    //from east
+    send_cols = current_grid_.block(halo_size_, halo_size_, local_rows_, halo_size_);
     MPI_Sendrecv(send_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_w_, 0,
                 recv_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_e_, 0,
                 cart_comm_, &status);
     
-    current_grid_.block(halo_size_, 0, local_rows_, halo_size_) = recv_cols;
-
-    //east
-    send_cols = current_grid_.block(halo_size_, halo_size_, local_rows_, halo_size_);
+    current_grid_.block(halo_size_, local_cols_ + halo_size_, local_rows_, halo_size_) = recv_cols;
+    
+    //from west
+    send_cols = current_grid_.block(halo_size_, local_cols_, local_rows_, halo_size_);
     MPI_Sendrecv(send_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_e_, 1,
                 recv_cols.data(), halo_size_ * local_rows_, MPI_INT, nbr_w_, 1,
                 cart_comm_, &status);
     
-    current_grid_.block(halo_size_, local_cols_, local_rows_, halo_size_) = recv_cols;
+    current_grid_.block(halo_size_, 0, local_rows_, halo_size_) = recv_cols;
 
-    Eigen::MatrixXi send_rows(halo_size_, local_cols_ + halo_size_);
-    Eigen::MatrixXi recv_rows(halo_size_, local_cols_ + halo_size_);
+    int total_width = local_cols_ + 2*halo_size_;
+    Eigen::MatrixXi send_rows(halo_size_, total_width);
+    Eigen::MatrixXi recv_rows = Eigen::MatrixXi::Zero(halo_size_, total_width);
 
-    //north
-    send_rows = current_grid_.block(local_rows_, halo_size_, halo_size_, local_cols_ + halo_size_);
-    MPI_Sendrecv(send_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_n_, 2,
-                recv_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_s_, 2,
+    //from south
+    send_rows = current_grid_.block(halo_size_, 0, halo_size_, total_width);
+    MPI_Sendrecv(send_rows.data(), halo_size_ * total_width, MPI_INT, nbr_n_, 2,
+                recv_rows.data(), halo_size_ * total_width, MPI_INT, nbr_s_, 2,
                 cart_comm_, &status);
     
-    current_grid_.block(0, halo_size_, halo_size_, local_cols_ + halo_size_) = recv_rows;
+    current_grid_.block(local_rows_ + halo_size_, 0, halo_size_, total_width) = recv_rows;
 
-    //south
-    send_rows = current_grid_.block(halo_size_, halo_size_, halo_size_, local_cols_ + halo_size_);
-    MPI_Sendrecv(send_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_s_, 3,
-                recv_rows.data(), halo_size_ * (local_cols_ + halo_size_), MPI_INT, nbr_n_, 3,
+    //from north
+    send_rows = current_grid_.block(local_rows_, 0, halo_size_, total_width);
+    MPI_Sendrecv(send_rows.data(), halo_size_ * total_width, MPI_INT, nbr_s_, 3,
+                recv_rows.data(), halo_size_ * total_width, MPI_INT, nbr_n_, 3,
                 cart_comm_, &status);
     
-    current_grid_.block(local_rows_ + halo_size_, halo_size_, halo_size_, local_cols_ + halo_size_) = recv_rows;
+    current_grid_.block(0, 0, halo_size_, total_width) = recv_rows;
+
 }
 
 void LocalGameOfLife::print_matrix(const Eigen::MatrixXi &matrix) {
