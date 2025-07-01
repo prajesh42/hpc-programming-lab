@@ -171,7 +171,7 @@ The script `scripts/generate_patterns.py` can generate common patterns for testi
 
   The Docker container supports the following environment variables to configure the Game of Life simulation:
 
-  #### 📌 Default Values
+  #### Default Values
 
   | Variable             | Description                          | Default |
   |----------------------|--------------------------------------|---------|
@@ -180,9 +180,17 @@ The script `scripts/generate_patterns.py` can generate common patterns for testi
   | `COLS`               | Number of grid columns               | `128`   |
   | `LOOP`               | Number of simulation iterations      | `1000`  |
 
-  ---
+  #### Dynamic Values
 
-  #### 💡 Example Command
-      ```bash
-        docker run -v .:/scratch -e GOL_NUM_MPI_PROCS=2 -e ROWS=32 -e COLS=32 -e LOOP=10 <image_name>
-        ```
+  Use INPUT_FILE="file_name.txt" for the input in environment variable
+
+  #### Example Command
+
+```bash
+docker run -v .:/scratch \
+  -e INPUT_FILE="input.txt" \
+  -e GOL_NUM_MPI_PROCS=2 \
+  -e ROWS=32 \
+  -e COLS=32 \
+  -e LOOP=10 \
+  <image_name>

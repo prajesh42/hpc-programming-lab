@@ -42,4 +42,4 @@ ENV COLS=128
 ENV LOOP=1000
 
 # Reads env vars and runs game_of_life using mpirun
-ENTRYPOINT ["sh", "-c", "mpirun --allow-run-as-root --oversubscribe -n $GOL_NUM_MPI_PROCS /app/game_of_life -n -r $ROWS -c $COLS -i $LOOP "]
+ENTRYPOINT ["sh", "-c", "mpirun --allow-run-as-root --oversubscribe -n $GOL_NUM_MPI_PROCS /app/game_of_life -n ${INPUT_FILE:+-f $INPUT_FILE} -r $ROWS -c $COLS -i $LOOP "]
