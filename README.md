@@ -1,6 +1,6 @@
 # HPC Programming Lab
 
-This repository contains three main projects corresponding to the HPC programming lab assignments.
+This repository contains two main projects corresponding to the HPC programming lab assignments.
 
 ## 1. Disease Simulation (part_1_disease)
 
